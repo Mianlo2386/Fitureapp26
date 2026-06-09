@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchAllMatches } from '../services/api'
 import MatchCard from '../components/match/MatchCard'
 import Skeleton from '../components/ui/Skeleton'
+import { ChevronDown, ChevronRight } from 'lucide-react'
 import type { Match } from '../types'
 
 const STAGES: { key: string; label: string; types: string[] }[] = [
@@ -15,7 +16,48 @@ const STAGES: { key: string; label: string; types: string[] }[] = [
   { key: 'final', label: 'Final', types: ['third', 'final'] },
 ]
 
+const PHASES: { key: string; label: string; types: string[] }[] = [
+  { key: 'group', label: 'Fase de Grupos', types: ['group'] },
+  { key: 'r32', label: '16avos de Final', types: ['r32'] },
+  { key: 'r16', label: 'Octavos de Final', types: ['r16'] },
+  { key: 'qf', label: 'Cuartos de Final', types: ['qf'] },
+  { key: 'sf', label: 'Semifinales', types: ['sf'] },
+  { key: 'third', label: 'Tercer Puesto', types: ['third'] },
+  { key: 'final', label: 'Final', types: ['final'] },
+]
+
 const GROUP_LETTERS = 'ABCDEFGHIJKL'.split('')
+
+function PhaseSection({
+  phase,
+  matches,
+  defaultOpen,
+}: {
+  phase: string
+  matches: Match[]
+  defaultOpen: boolean
+}) {
+  const [open, setOpen] = useState(defaultOpen)
+  if (matches.length === 0) return null
+
+  return (
+    <section>
+      <button
+        onClick={() => setOpen(!open)}
+        className="mb-3 flex w-full cursor-pointer items-center gap-2 text-left text-lg font-semibold text-gray-900 dark:text-white"
+      >
+        {open ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
+        {phase}
+        <span className="text-sm font-normal text-gray-500">({matches.length})</span>
+      </button>
+      {open && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {matches.map((m) => <MatchCard key={m.id} match={m} />)}
+        </div>
+      )}
+    </section>
+  )
+}
 
 export default function Fixture() {
   const [stage, setStage] = useState('all')
@@ -30,16 +72,13 @@ export default function Fixture() {
 
   let matches = (data as Match[]) || []
 
-  const currentStage = STAGES.find((s) => s.key === stage)
-  if (currentStage?.types.length) {
-    matches = matches.filter((m) => currentStage.types.includes(m.type))
-  }
-
   if (groupFilter) {
     matches = matches.filter((m) => m.group === groupFilter)
   }
 
-  matches.sort((a, b) => new Date(b.local_date).getTime() - new Date(a.local_date).getTime())
+  matches.sort((a, b) => new Date(a.local_date).getTime() - new Date(b.local_date).getTime())
+
+  const currentStage = STAGES.find((s) => s.key === stage)
 
   return (
     <div>
@@ -49,7 +88,10 @@ export default function Fixture() {
         {STAGES.map((s) => (
           <button
             key={s.key}
-            onClick={() => setStage(s.key)}
+            onClick={() => {
+              setStage(s.key)
+              if (s.key === 'all') setGroupFilter('')
+            }}
             className={`cursor-pointer rounded-lg px-3 py-1.5 text-sm font-medium transition ${
               stage === s.key
                 ? 'bg-yellow-500 text-white'
@@ -61,36 +103,61 @@ export default function Fixture() {
         ))}
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        <button
-          onClick={() => setGroupFilter('')}
-          className={`cursor-pointer rounded-lg px-2.5 py-1 text-xs font-medium transition ${
-            !groupFilter
-              ? 'bg-gray-800 text-white dark:bg-white dark:text-gray-900'
-              : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
-          }`}
-        >
-          Todos
-        </button>
-        {GROUP_LETTERS.map((l) => (
+      {stage === 'group' && (
+        <div className="mb-4 flex flex-wrap gap-2">
           <button
-            key={l}
-            onClick={() => setGroupFilter(l)}
+            onClick={() => setGroupFilter('')}
             className={`cursor-pointer rounded-lg px-2.5 py-1 text-xs font-medium transition ${
-              groupFilter === l
+              !groupFilter
                 ? 'bg-gray-800 text-white dark:bg-white dark:text-gray-900'
                 : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
             }`}
           >
-            {l}
+            Todos
           </button>
-        ))}
-      </div>
+          {GROUP_LETTERS.map((l) => (
+            <button
+              key={l}
+              onClick={() => setGroupFilter(l)}
+              className={`cursor-pointer rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                groupFilter === l
+                  ? 'bg-gray-800 text-white dark:bg-white dark:text-gray-900'
+                  : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+              }`}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {matches.length === 0 ? (
-        <p className="text-sm text-gray-500">No hay partidos para este filtro.</p>
+      {stage === 'all' ? (
+        <div className="space-y-6">
+          {PHASES.map((ph) => {
+            const phaseMatches = matches.filter((m) => ph.types.includes(m.type))
+            return (
+              <PhaseSection
+                key={ph.key}
+                phase={ph.label}
+                matches={phaseMatches}
+                defaultOpen={ph.key === 'group'}
+              />
+            )
+          })}
+        </div>
       ) : (
-        <div className="grid gap-3 sm:grid-cols-2">{matches.map((m) => <MatchCard key={m.id} match={m} />)}</div>
+        <div className="space-y-6">
+          {currentStage && (
+            <PhaseSection
+              phase={currentStage.label}
+              matches={matches.filter((m) => currentStage.types.includes(m.type))}
+              defaultOpen={true}
+            />
+          )}
+          {matches.filter((m) => currentStage?.types.includes(m.type)).length === 0 && (
+            <p className="text-sm text-gray-500">No hay partidos para este filtro.</p>
+          )}
+        </div>
       )}
     </div>
   )

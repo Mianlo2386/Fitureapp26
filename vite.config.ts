@@ -4,6 +4,15 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://worldcup26.ir',
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/api/, ''),
+      },
+    },
+  },
   plugins: [
     react(),
     tailwindcss(),
