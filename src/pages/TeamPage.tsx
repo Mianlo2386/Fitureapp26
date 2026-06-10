@@ -22,6 +22,28 @@ export default function TeamPage() {
     (m) => m.home_team_id === id || m.away_team_id === id,
   )
 
+  const finishedTeamMatches = teamMatches.filter((m) => m.finished === 'TRUE')
+  const won = finishedTeamMatches.filter((m) => {
+    if (m.home_team_id === id) return Number(m.home_score) > Number(m.away_score)
+    return Number(m.away_score) > Number(m.home_score)
+  }).length
+  const lost = finishedTeamMatches.filter((m) => {
+    if (m.home_team_id === id) return Number(m.home_score) < Number(m.away_score)
+    return Number(m.away_score) < Number(m.home_score)
+  }).length
+  const drawn = finishedTeamMatches.length - won - lost
+  let gf = 0, ga = 0
+  finishedTeamMatches.forEach((m) => {
+    if (m.home_team_id === id) {
+      gf += Number(m.home_score) || 0
+      ga += Number(m.away_score) || 0
+    } else {
+      gf += Number(m.away_score) || 0
+      ga += Number(m.home_score) || 0
+    }
+  })
+  const gd = gf - ga
+
   return (
     <div>
       <div className="mb-6 flex items-center gap-4">
@@ -31,6 +53,18 @@ export default function TeamPage() {
           <p className="text-sm text-gray-500 dark:text-gray-400">{team.fifa_code} · Grupo {team.groups}</p>
         </div>
       </div>
+
+      {finishedTeamMatches.length > 0 && (
+        <div className="mb-6 flex items-center gap-4 text-sm">
+          <span className="text-gray-500 dark:text-gray-400">Récord:</span>
+          <span className="font-medium text-green-600 dark:text-green-400">✅ {won}</span>
+          <span className="font-medium text-yellow-600 dark:text-yellow-400">➖ {drawn}</span>
+          <span className="font-medium text-red-600 dark:text-red-400">❌ {lost}</span>
+          <span className="ml-auto text-gray-500 dark:text-gray-400">
+            GF {gf} · GA {ga} · GD {gd > 0 ? `+${gd}` : gd}
+          </span>
+        </div>
+      )}
 
       <h2 className="mb-3 text-lg font-semibold">Partidos</h2>
       {teamMatches.length === 0 ? (

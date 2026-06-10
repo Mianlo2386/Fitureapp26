@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { fetchAllTeams } from '../../services/api'
@@ -14,7 +15,7 @@ function formatDate(dateStr: string) {
   return formatInArgentina(dateStr, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 }
 
-export default function MatchCard({ match }: { match: Match }) {
+function MatchCard({ match, highlight }: { match: Match; highlight?: boolean }) {
   const { data: teams } = useQuery({
     queryKey: ['teams'],
     queryFn: fetchAllTeams,
@@ -27,11 +28,20 @@ export default function MatchCard({ match }: { match: Match }) {
   return (
     <Link
       to={`/partido/${match.id}`}
-      className="block rounded-xl border border-gray-200 bg-white p-4 transition hover:shadow-md dark:border-gray-800 dark:bg-gray-900"
+      className={`block rounded-xl border p-4 transition hover:shadow-md ${
+        highlight
+          ? 'border-sky-300 bg-sky-50 dark:border-sky-700 dark:bg-sky-950/20'
+          : 'border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900'
+      }`}
     >
       <div className="mb-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-500">
         <span className="font-medium uppercase">{match.group}</span>
-        {getStatusBadge(match)}
+        <span className="flex items-center gap-1.5">
+          {highlight && (
+            <span className="rounded bg-sky-200 px-1.5 py-0.5 text-[10px] font-medium text-sky-800 dark:bg-sky-900/50 dark:text-sky-300">🇦🇷 Argentina</span>
+          )}
+          {getStatusBadge(match)}
+        </span>
       </div>
 
       <div className="flex items-center gap-3">
@@ -62,3 +72,5 @@ export default function MatchCard({ match }: { match: Match }) {
     </Link>
   )
 }
+
+export default memo(MatchCard)

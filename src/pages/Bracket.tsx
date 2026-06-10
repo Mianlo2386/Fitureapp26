@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { fetchAllMatches } from '../services/api'
+import { useArgentina } from '../hooks/useArgentina'
 import MatchCard from '../components/match/MatchCard'
 import Skeleton from '../components/ui/Skeleton'
 import type { Match } from '../types'
@@ -14,6 +15,8 @@ const ROUNDS = [
 ] as const
 
 export default function Bracket() {
+  const argentina = useArgentina()
+  const argentinaMatchIds = new Set(argentina.matches.map((m) => m.id))
   const { data: matches, isLoading: mLoad } = useQuery({ queryKey: ['matches'], queryFn: fetchAllMatches })
 
   if (mLoad) return <Skeleton className="h-96 w-full" />
@@ -34,7 +37,7 @@ export default function Bracket() {
               <h2 className="mb-3 text-lg font-semibold">{label}</h2>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {roundMatches.map((m) => (
-                  <MatchCard key={m.id} match={m} />
+                  <MatchCard key={m.id} match={m} highlight={argentinaMatchIds.has(m.id)} />
                 ))}
               </div>
             </section>

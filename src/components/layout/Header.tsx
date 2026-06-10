@@ -1,8 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
-import { Trophy, Calendar, Tv, GitBranch, Swords } from 'lucide-react'
+import { Trophy, Calendar, Tv, GitBranch, Swords, Flag } from 'lucide-react'
 import ThemeToggle from './ThemeToggle'
 
 const nav = [
+  { to: '/equipo/37', label: 'Argentina', icon: Flag, argentina: true },
   { to: '/', label: 'Hoy', icon: Calendar },
   { to: '/grupos', label: 'Grupos', icon: Trophy },
   { to: '/fixture', label: 'Fixture', icon: Calendar },
@@ -22,13 +23,15 @@ export default function Header() {
         </Link>
 
         <nav className="hidden items-center gap-1 sm:flex">
-          {nav.map(({ to, label, icon: Icon }) => (
+          {nav.map(({ to, label, icon: Icon, argentina }) => (
             <Link
               key={to}
               to={to}
               className={`flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition ${
                 pathname === to
-                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                  ? argentina
+                    ? 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300'
+                    : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
                   : 'text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800'
               }`}
             >
@@ -42,13 +45,15 @@ export default function Header() {
       </div>
 
       <nav className="flex justify-center gap-2 border-t border-gray-100 px-4 py-2 sm:hidden dark:border-gray-800">
-        {nav.map(({ to, label, icon: Icon }) => (
+        {nav.map(({ to, label, icon: Icon, argentina }) => (
           <Link
             key={to}
             to={to}
             className={`flex flex-col items-center gap-0.5 rounded-lg px-2 py-1 text-[10px] font-medium transition ${
               pathname === to
-                ? 'text-yellow-600 dark:text-yellow-400'
+                ? argentina
+                  ? 'text-sky-600 dark:text-sky-400'
+                  : 'text-yellow-600 dark:text-yellow-400'
                 : 'text-gray-500 dark:text-gray-500'
             }`}
           >
