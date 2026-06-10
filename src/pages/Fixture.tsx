@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { fetchAllMatches } from '../services/api'
+import { fetchAllMatches, STALE } from '../services/api'
 import MatchCard from '../components/match/MatchCard'
 import Skeleton from '../components/ui/Skeleton'
 import { ChevronDown, ChevronRight } from 'lucide-react'
@@ -63,13 +63,15 @@ function PhaseSection({
 export default function Fixture() {
   const [stage, setStage] = useState('all')
   const [groupFilter, setGroupFilter] = useState('')
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['matches'],
     queryFn: fetchAllMatches,
     refetchInterval: 60_000,
+    staleTime: STALE.MATCHES,
   })
 
   if (isLoading) return <Skeleton className="h-96 w-full" />
+  if (isError) return <p className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">No se pudieron cargar los partidos. Probá recargar la página.</p>
 
   let matches = (data as Match[]) || []
 

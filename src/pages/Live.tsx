@@ -1,17 +1,19 @@
 import { useQuery } from '@tanstack/react-query'
-import { fetchAllMatches } from '../services/api'
+import { fetchAllMatches, STALE } from '../services/api'
 import MatchCard from '../components/match/MatchCard'
 import Skeleton from '../components/ui/Skeleton'
 import type { Match } from '../types'
 
 export default function Live() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['matches'],
     queryFn: fetchAllMatches,
     refetchInterval: 30_000,
+    staleTime: STALE.MATCHES,
   })
 
   if (isLoading) return <Skeleton className="h-96 w-full" />
+  if (isError) return <p className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">No se pudieron cargar los partidos. Probá recargar la página.</p>
 
   const live = (data as Match[] || []).filter(
     (m) => m.time_elapsed !== 'notstarted' && m.finished !== 'TRUE',

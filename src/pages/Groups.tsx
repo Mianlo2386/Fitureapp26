@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { fetchAllGroups } from '../services/api'
+import { fetchAllGroups, STALE } from '../services/api'
 import GroupTable from '../components/group/GroupTable'
 import Skeleton from '../components/ui/Skeleton'
 import type { Group } from '../types'
@@ -9,9 +9,10 @@ const GROUP_LETTERS = 'ABCDEFGHIJKL'.split('')
 
 export default function Groups() {
   const [selected, setSelected] = useState('A')
-  const { data: groups, isLoading: loadingG } = useQuery({ queryKey: ['groups'], queryFn: fetchAllGroups })
+  const { data: groups, isLoading: loadingG, isError } = useQuery({ queryKey: ['groups'], queryFn: fetchAllGroups, staleTime: STALE.GROUPS })
 
   if (loadingG) return <Skeleton className="h-96 w-full" />
+  if (isError) return <p className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">No se pudieron cargar los grupos.</p>
 
   const allGroups = groups as Group[]
 

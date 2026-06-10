@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { fetchAllMatches, fetchAllTeams } from '../services/api'
+import { fetchAllMatches, fetchAllTeams, STALE } from '../services/api'
 import { ArrowLeft } from 'lucide-react'
 import Skeleton from '../components/ui/Skeleton'
 import type { Match, Team } from '../types'
@@ -8,10 +8,11 @@ import { formatInArgentina } from '../utils/date'
 
 export default function MatchDetail() {
   const { id } = useParams<{ id: string }>()
-  const { data: matches, isLoading } = useQuery({ queryKey: ['matches'], queryFn: fetchAllMatches, refetchInterval: 30_000 })
-  const { data: teams } = useQuery({ queryKey: ['teams'], queryFn: fetchAllTeams })
+  const { data: matches, isLoading, isError } = useQuery({ queryKey: ['matches'], queryFn: fetchAllMatches, refetchInterval: 30_000, staleTime: STALE.MATCHES })
+  const { data: teams } = useQuery({ queryKey: ['teams'], queryFn: fetchAllTeams, staleTime: STALE.TEAMS })
 
   if (isLoading || !matches) return <Skeleton className="h-96 w-full" />
+  if (isError) return <p className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">No se pudieron cargar los datos del partido.</p>
 
   const match = (matches as Match[]).find((m) => m.id === id)
   if (!match) return <p className="text-gray-500">Partido no encontrado</p>
