@@ -4,6 +4,7 @@ import { fetchAllMatches, fetchAllTeams } from '../services/api'
 import { ArrowLeft } from 'lucide-react'
 import Skeleton from '../components/ui/Skeleton'
 import type { Match, Team } from '../types'
+import { formatInArgentina } from '../utils/date'
 
 export default function MatchDetail() {
   const { id } = useParams<{ id: string }>()
@@ -52,7 +53,7 @@ export default function MatchDetail() {
         </div>
 
         <div className="mt-4 text-center text-sm text-gray-500">
-          {new Date(match.local_date).toLocaleDateString('es-AR', {
+          {formatInArgentina(match.local_date, {
             weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit',
           })}
         </div>

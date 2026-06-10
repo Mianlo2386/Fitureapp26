@@ -5,6 +5,7 @@ import MatchCard from '../components/match/MatchCard'
 import Skeleton from '../components/ui/Skeleton'
 import { ChevronDown, ChevronRight } from 'lucide-react'
 import type { Match } from '../types'
+import { parseApiDate } from '../utils/date'
 
 const STAGES: { key: string; label: string; types: string[] }[] = [
   { key: 'all', label: 'Todos', types: [] },
@@ -76,7 +77,7 @@ export default function Fixture() {
     matches = matches.filter((m) => m.group === groupFilter)
   }
 
-  matches.sort((a, b) => new Date(a.local_date).getTime() - new Date(b.local_date).getTime())
+  matches.sort((a, b) => parseApiDate(a.local_date).getTime() - parseApiDate(b.local_date).getTime())
 
   const currentStage = STAGES.find((s) => s.key === stage)
 

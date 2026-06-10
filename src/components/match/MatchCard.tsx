@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { fetchAllTeams } from '../../services/api'
 import type { Match, Team } from '../../types'
+import { formatInArgentina } from '../../utils/date'
 
 function getStatusBadge(m: Match) {
   if (m.finished === 'TRUE') return <span className="rounded bg-gray-200 px-2 py-0.5 text-[10px] font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">Finalizado</span>
@@ -10,8 +11,7 @@ function getStatusBadge(m: Match) {
 }
 
 function formatDate(dateStr: string) {
-  const d = new Date(dateStr)
-  return d.toLocaleDateString('es-AR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+  return formatInArgentina(dateStr, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
 }
 
 export default function MatchCard({ match }: { match: Match }) {

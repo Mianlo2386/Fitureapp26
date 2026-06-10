@@ -3,10 +3,9 @@ import { fetchAllMatches } from '../services/api'
 import MatchCard from '../components/match/MatchCard'
 import Skeleton from '../components/ui/Skeleton'
 import type { Match } from '../types'
+import { isTodayInArgentina } from '../utils/date'
 
 export default function Dashboard() {
-  const today = new Date().toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
-  
   const { data: matches, isLoading } = useQuery({
     queryKey: ['matches'],
     queryFn: fetchAllMatches,
@@ -15,12 +14,7 @@ export default function Dashboard() {
 
   if (isLoading) return <Skeleton className="h-96 w-full" />
 
-  const todayMatches = (matches as Match[] || []).filter((m) => {
-    const [datePart] = m.local_date.split(' ')
-    const [mStr, dStr, yStr] = datePart.split('/')
-    const mDate = `${mStr}/${dStr}/${yStr}`
-    return mDate === today
-  })
+  const todayMatches = (matches as Match[] || []).filter((m) => isTodayInArgentina(m.local_date))
 
   const upcoming = (matches as Match[] || []).filter((m) => m.finished !== 'TRUE' && m.time_elapsed === 'notstarted').slice(0, 6)
   const live = (matches as Match[] || []).filter((m) => m.time_elapsed !== 'notstarted' && m.finished !== 'TRUE')
