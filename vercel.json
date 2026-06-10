@@ -2,11 +2,5 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "installCommand": "npm install",
-  "rewrites": [
-    {
-      "source": "/api/:match*",
-      "destination": "https://worldcup26.ir/:match*"
-    }
-  ]
+  "installCommand": "npm install"
 }
