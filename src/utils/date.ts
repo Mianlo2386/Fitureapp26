@@ -4,7 +4,7 @@ export function parseApiDate(dateStr: string): Date {
   const [datePart, timePart = '00:00'] = dateStr.split(' ')
   const [month, day, year] = datePart.split('/')
   const [hour, minute] = timePart.split(':')
-  return new Date(Date.UTC(+year, +month - 1, +day, +hour, +minute))
+  return new Date(Date.UTC(+year, +month - 1, +day, +hour + 5, +minute))
 }
 
 export function formatInArgentina(
